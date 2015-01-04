@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 
 public class MainGui {
 
-	private JFrame frame;
+	private static JFrame frame;
 	private JTextField txtIP;
 	private JTextField txtPoort;
 	private static JTextArea txtArLog; 
@@ -40,6 +40,10 @@ public class MainGui {
 	
 	public JButton getBtnVerbinden(){
 		return btnVerbinden;
+	}
+	
+	public static void changeLocationFrame(int x,int y){
+		frame.setLocation(x, y);
 	}
 
 	/**

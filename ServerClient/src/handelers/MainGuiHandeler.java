@@ -2,6 +2,8 @@ package handelers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import controler.MainControler;
 import gui.MainGui;
@@ -14,6 +16,33 @@ public class MainGuiHandeler {
 		this.con=con;
 	}
 	public void addMovementHandelers() {
+		gui.getFrame().addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				if (con.getServer()!=null){
+					// TODO rekening houden met scherm groote
+					con.getServer().sendCordinates(((Double) gui.getFrame().getLocation().getX()).intValue() , ((Double) gui.getFrame().getLocation().getY()).intValue());
+				}				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		// TODO Auto-generated method stub
 		
 	}

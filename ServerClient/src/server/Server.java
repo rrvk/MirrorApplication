@@ -11,12 +11,12 @@ import java.util.Map;
 public class Server implements Runnable{
 	private Integer poort;
 	
-	public static Map<Integer, String> clients= new HashMap<Integer, String>();
+	public static Map<Integer, Socket> clients= new HashMap<Integer, Socket>();
 	public static Integer count=0;
 	
 	public static void removeItemFromClients(Integer key){
-		for(Iterator<Map.Entry<Integer, String>> it = clients.entrySet().iterator(); it.hasNext(); ) {
-			Map.Entry<Integer, String> entry = it.next();
+		for(Iterator<Map.Entry<Integer, Socket>> it = clients.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<Integer, Socket> entry = it.next();
 			if(entry.getKey()==key) {
 				it.remove();
 			}
@@ -25,6 +25,13 @@ public class Server implements Runnable{
 	
 	public Server(Integer poort){
 		this.poort= poort;
+	}
+	
+	public void sendCordinates(int x, int y){
+		ServerSendToClients send = new ServerSendToClients("Move");
+		send.setXandY(x, y);
+		Thread t = new Thread(send);
+		t.start();
 	}
 
 	@Override
@@ -38,10 +45,7 @@ public class Server implements Runnable{
 				//accepteren van client
 				Socket client = server.accept();
 				MainGui.getTxtAreaLog().append("Nieuwe Cliënt("+count+")\n");
-				clients.put(count, client.getInetAddress().toString());
-				System.out.println(count);
-				System.out.println(client.getInetAddress().toString());
-				System.out.println();
+				clients.put(count, client);
 				HandelClient hC= new HandelClient(client,count);
 				count++;
 				//niewe thread starten voor afhandelen client
