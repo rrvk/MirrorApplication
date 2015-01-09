@@ -3,10 +3,13 @@ package server;
 import gui.MainGui;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.json.simple.JSONObject;
 
 public class ServerSendToClients implements Runnable{
 	private String commando="";
@@ -31,10 +34,20 @@ public class ServerSendToClients implements Runnable{
 				Map.Entry<Integer, Socket> entry = it.next();
 				PrintWriter pout;
 				try {
+					/*ObjectOutputStream outputStream = new ObjectOutputStream(entry.getValue().getOutputStream());
+					
+					JSONObject obj = new JSONObject();
+					obj.put("name", "Coordinaten");
+					obj.put("x", x);
+					obj.put("y", y);
+					
+					outputStream.writeObject(obj);*/
+					
 					pout = new PrintWriter(entry.getValue().getOutputStream(), true);
 					pout.println("Move Coordinaten START");
-					pout.println(x);
-					pout.println(y);
+					pout.println("x;"+x);
+					pout.println("y;"+y);
+					
 				} catch (IOException e) {
 					MainGui.getTxtAreaLog().append("Error in de coordniaten zenden");
 				}
