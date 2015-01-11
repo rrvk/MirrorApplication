@@ -4,14 +4,12 @@ import gui.MainGui;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
 
-public class ServerSendToClients implements Runnable{
+public class ServerSendToClients{
 	private String commando="";
 	// deze worden gebruikt voor de beweging van het scherm
 	private int x;
@@ -25,28 +23,28 @@ public class ServerSendToClients implements Runnable{
 		this.x=x;
 		this.y=y;
 	}
-	
-	@Override
-	public void run() {
+
+	@SuppressWarnings("unchecked")
+	public void send() {
 		switch (commando) {
 		case "Move":
-			for(Iterator<Map.Entry<Integer, Socket>> it = Server.clients.entrySet().iterator(); it.hasNext(); ) {
-				Map.Entry<Integer, Socket> entry = it.next();
-				PrintWriter pout;
+			for(Iterator<Map.Entry<Integer, ClientInfo>> it = Server.clients.entrySet().iterator(); it.hasNext(); ) {
+				Map.Entry<Integer, ClientInfo> entry = it.next();
+				//PrintWriter pout;
 				try {
-					/*ObjectOutputStream outputStream = new ObjectOutputStream(entry.getValue().getOutputStream());
+					// dit is voor het versturen van het JSONObject
+					ObjectOutputStream oos = entry.getValue().getOOS();
 					
-					JSONObject obj = new JSONObject();
-					obj.put("name", "Coordinaten");
-					obj.put("x", x);
-					obj.put("y", y);
+					// JSONObject
+					JSONObject objCoordinaten = new JSONObject();
+					objCoordinaten.put("name", "Coordinaten");
+					objCoordinaten.put("x", x);
+					objCoordinaten.put("y", y);
 					
-					outputStream.writeObject(obj);*/
-					
-					pout = new PrintWriter(entry.getValue().getOutputStream(), true);
-					pout.println("Move Coordinaten START");
-					pout.println("x;"+x);
-					pout.println("y;"+y);
+					// verzenden
+					oos.reset();
+					oos.writeObject(objCoordinaten);
+			        oos.flush();
 					
 				} catch (IOException e) {
 					MainGui.getTxtAreaLog().append("Error in de coordniaten zenden");

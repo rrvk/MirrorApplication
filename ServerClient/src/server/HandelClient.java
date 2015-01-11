@@ -2,38 +2,63 @@ package server;
 
 import gui.MainGui;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import org.json.simple.JSONObject;
 
 public class HandelClient implements Runnable {
-	Socket client;
+	ClientInfo clientInfo;
 	Integer clientNumber;
-	public HandelClient(Socket client, Integer clientNumber){
-		this.client=client;
+	public HandelClient(ClientInfo clientInfo, Integer clientNumber){
+		this.clientInfo=clientInfo;
 		this.clientNumber=clientNumber;
 	}
 	@Override
 	public void run() {
 		try {
-			PrintWriter pout = new PrintWriter(client.getOutputStream(), true);
-			BufferedReader is = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			String line = is.readLine();
-			String send = "Ik begrijp je niet";
-			if (line.equals("Hallo iemand hier?")){
-				send = "Yep iemand is hier.";
-				Server.removeItemFromClients(clientNumber);
-				MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") gesloten\n");
+			// eerst moeten we wachten totdat we iets krijgen
+			InputStream is = clientInfo.getClient().getInputStream();  
+			ObjectInputStream ois = new ObjectInputStream(is);  
+			
+			JSONObject objOntvangt = (JSONObject)ois.readObject();  
+			if (objOntvangt!=null){
+				if (objOntvangt.get("name").equals("ping")){
+					if (objOntvangt.get("testString").equals("Hallo iemand hier?")){
+						sendPing("Yep iemand is hier.");
+					}
+					else{
+						// hmm dit begrijpen we niet 
+						sendPing("Ik begrijp je niet");
+					}
+				}
 			}
-			pout.println(send);
-			client.close();
+			ois.close();
 			is.close();
-			pout.close();
+			clientInfo.getClient().close();
+			Server.removeItemFromClients(clientNumber);
+			MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") gesloten\n");
 		}
 		catch( IOException e){
 			System.out.println(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void sendPing(String testString) throws IOException{
+		ObjectOutputStream oos = clientInfo.getOOS();
+		JSONObject objVerzend = new JSONObject();
+		objVerzend.put("name", "ping");
+		objVerzend.put("testString", testString);
+		oos.reset();
+		oos.writeObject(objVerzend);
+		oos.flush();
+		// het is verzonden nu mag het worden gesloten
+		oos.close();
 	}
 }

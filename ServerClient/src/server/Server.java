@@ -11,12 +11,12 @@ import java.util.Map;
 public class Server implements Runnable{
 	private Integer poort;
 	
-	public static Map<Integer, Socket> clients= new HashMap<Integer, Socket>();
+	public static Map<Integer, ClientInfo> clients= new HashMap<Integer, ClientInfo>();
 	public static Integer count=0;
 	
 	public static void removeItemFromClients(Integer key){
-		for(Iterator<Map.Entry<Integer, Socket>> it = clients.entrySet().iterator(); it.hasNext(); ) {
-			Map.Entry<Integer, Socket> entry = it.next();
+		for(Iterator<Map.Entry<Integer, ClientInfo>> it = clients.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<Integer, ClientInfo> entry = it.next();
 			if(entry.getKey()==key) {
 				it.remove();
 			}
@@ -30,8 +30,7 @@ public class Server implements Runnable{
 	public void sendCordinates(int x, int y){
 		ServerSendToClients send = new ServerSendToClients("Move");
 		send.setXandY(x, y);
-		Thread t = new Thread(send);
-		t.start();
+		send.send();
 	}
 
 	@Override
@@ -45,8 +44,9 @@ public class Server implements Runnable{
 				//accepteren van client
 				Socket client = server.accept();
 				MainGui.getTxtAreaLog().append("Nieuwe Cliënt("+count+")\n");
-				clients.put(count, client);
-				HandelClient hC= new HandelClient(client,count);
+				ClientInfo clientinfo = new ClientInfo(client);
+				clients.put(count, clientinfo);
+				HandelClient hC= new HandelClient(clientinfo,count);
 				count++;
 				//niewe thread starten voor afhandelen client
 				Thread t = new Thread(hC);

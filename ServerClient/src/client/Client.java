@@ -4,12 +4,13 @@ import gui.MainGui;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.json.simple.JSONObject;
 
@@ -35,34 +36,50 @@ public class Client implements Runnable{
 	 * en of die het goede antwoord terug stuurt
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean ping(String ip, Integer poort){
 		// 10 keer pingen om te kijken of de server ook bestaat
 		for (int i = 0; i < 10; i++) {
 			try{
-				// nieuwe verbinding maken
 				Socket client = new Socket(ip,poort);
-				// gedeelte voor schrijven naar server
-				DataOutputStream os = new DataOutputStream(client.getOutputStream());
-				os.writeBytes("Hallo iemand hier?\n");
-				os.flush();
-				// inlezen van het respons
-				BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-				String line = in.readLine();
-				os.close();
-				if (line!=null){
-					// dit moet het respons zijn. 
-					if (line.equals("Yep iemand is hier.")){
-						client.close();
-						in.close();
-						return true;
-					}
-					else{
-						client.close();
-						return false;
+				
+				// dit is voor het versturen van de ping
+				OutputStream os = client.getOutputStream();  
+				ObjectOutputStream oos = new ObjectOutputStream(os);
+				
+				// dit is het JSONObject dat verzonden moet worden
+				JSONObject objVerzend = new JSONObject();
+		        objVerzend.put("name", "ping");
+		        objVerzend.put("testString", "Hallo iemand hier?");
+		        oos.writeObject(objVerzend);
+		        oos.flush();
+		        			
+				// nu moeten we wachten totdat er antwoord komt
+				InputStream is = client.getInputStream();  
+				ObjectInputStream ois = new ObjectInputStream(is);  
+				JSONObject objOntvang = (JSONObject)ois.readObject();  
+				// TODO time out van 10 seconden
+				if (objOntvang!=null){
+					if (objOntvang.get("name").equals("ping")){
+		        		if (objOntvang.get("testString").equals("Yep iemand is hier.")){
+		        			// mooi zo goede antwoord client sluiten en een goedkeuring terug sturen
+		        			client.close();
+							ois.close();
+							is.close();
+							return true;
+		        		}
+		        		else{
+		        			// hmm wel wat terug gekregen maar niet het goede
+		        			client.close();
+							ois.close();
+							is.close();
+							return false;
+		        		}
 					}
 				}
-				in.close();
 				client.close();
+				ois.close();
+				is.close();
 			}
 			catch(Exception ex){}
 		}
@@ -71,43 +88,37 @@ public class Client implements Runnable{
 	@Override
 	public void run() {
 		try {
-			System.out.println("a");
 			Socket client = new Socket(ip,poort);
-			/*ObjectInputStream inStream = new ObjectInputStream(client.getInputStream());
-			JSONObject obj = (JSONObject) inStream.readObject();
-			System.out.println("a");
-			if (obj.get("name").equals("Coordinaten")){
-				System.out.println("b");
-				Integer x = Integer.parseInt(obj.get("x").toString());
-				Integer y = Integer.parseInt(obj.get("y").toString());
-				if ((x>0 && x<this.x) && (y>0 && y<this.y)){
-					MainGui.changeLocationFrame(x,y);
-				}
-			}*/
-			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			String line = in.readLine();
-			while(line!=null){
-				if (line.equals("Move Coordinaten START")){
-					String temp = in.readLine();
-					if (temp.contains("x;")){
-						temp = temp.replaceAll("x;", "");
-						Integer x = Integer.parseInt(temp);
-						temp = in.readLine();
-						if (temp.contains("y;")){
-							temp = temp.replaceAll("y;", "");
-							Integer y = Integer.parseInt(temp);
+			// dit om te kijken wat er allemaal wordt ontvangen van de server, dus wat we moeten aanpassen
+			InputStream is = client.getInputStream();  
+			ObjectInputStream ois = new ObjectInputStream(is);
+
+			JSONObject objOntvang = null;
+			while ((objOntvang = (JSONObject)ois.readObject()) != null) {
+				if (objOntvang!=null){
+					if (objOntvang.get("name").equals("Coordinaten")){
+						if (objOntvang.containsKey("x") && objOntvang.containsKey("y")){
+							Integer x = Integer.parseInt(objOntvang.get("x").toString());
+							Integer y = Integer.parseInt(objOntvang.get("y").toString());
 							if ((x>0 && x<this.x) && (y>0 && y<this.y)){
 								MainGui.changeLocationFrame(x,y);
 							}
 						}
-					}					
+					}
 				}
-				line = in.readLine();
 			}
 			client.close();
 		} catch (IOException e1) {
+			if (e1.getMessage().contains("Connection reset")){
+				MainGui.getTxtAreaLog().append("De server is gesloten");
+			}
+			else{
+				// 	TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}		
+			e.printStackTrace();
+		} 
 	}
 }
