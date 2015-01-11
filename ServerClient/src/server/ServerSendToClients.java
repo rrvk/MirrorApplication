@@ -14,8 +14,10 @@ public class ServerSendToClients{
 	// deze worden gebruikt voor de beweging van het scherm
 	private int x;
 	private int y;
+	private int h;
+	private int w;
 	
-	public ServerSendToClients(String commando){
+	public void setCommando(String commando){
 		this.commando=commando;
 	}
 	
@@ -23,39 +25,54 @@ public class ServerSendToClients{
 		this.x=x;
 		this.y=y;
 	}
+	
+	public void setSize(int h, int w) {
+		this.h = h;
+		this.w = w;		
+	}
 
 	@SuppressWarnings("unchecked")
 	public void send() {
 		switch (commando) {
 		case "Move":
-			for(Iterator<Map.Entry<Integer, ClientInfo>> it = Server.clients.entrySet().iterator(); it.hasNext(); ) {
-				Map.Entry<Integer, ClientInfo> entry = it.next();
-				//PrintWriter pout;
-				try {
-					// dit is voor het versturen van het JSONObject
-					ObjectOutputStream oos = entry.getValue().getOOS();
-					
-					// JSONObject
-					JSONObject objCoordinaten = new JSONObject();
-					objCoordinaten.put("name", "Coordinaten");
-					objCoordinaten.put("x", x);
-					objCoordinaten.put("y", y);
-					
-					// verzenden
-					oos.reset();
-					oos.writeObject(objCoordinaten);
-			        oos.flush();
-					
-				} catch (IOException e) {
-					MainGui.getTxtAreaLog().append("Error in de coordniaten zenden");
-				}
-	    	}
+			JSONObject objCoordinaten = new JSONObject();
+			objCoordinaten.put("name", "Coordinaten");
+			objCoordinaten.put("x", x);
+			objCoordinaten.put("y", y);
+			
+			try {
+				sendToAll(objCoordinaten);
+			} catch (IOException e) {
+				MainGui.getTxtAreaLog().append("Error in de coordniaten zenden");
+			}
 			break;
-
+		case "Size":
+			JSONObject objSize = new JSONObject();
+			objSize.put("name", "Size");
+			objSize.put("h", h);
+			objSize.put("w", w);
+			
+			try {
+				sendToAll(objSize);
+			} catch (IOException e) {
+				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote");
+			}
+			break;
 		default:
 			break;
 		}
-		
 	}
-
+	
+	private void sendToAll(JSONObject obj) throws IOException{
+		for(Iterator<Map.Entry<Integer, ClientInfo>> it = Server.clients.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<Integer, ClientInfo> entry = it.next();
+			// dit is voor het versturen van het JSONObject
+			ObjectOutputStream oos = entry.getValue().getOOS();
+			
+			// verzenden
+			oos.reset();
+			oos.writeObject(obj);
+	        oos.flush();
+    	}
+	}
 }

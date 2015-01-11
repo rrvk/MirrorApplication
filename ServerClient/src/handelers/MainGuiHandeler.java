@@ -25,14 +25,14 @@ public class MainGuiHandeler {
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
-				
+				if (con.getServer()!=null){
+					con.getServer().sendSize(gui.getFrame().getHeight(), gui.getFrame().getWidth());
+				}				
 			}
 			
 			@Override
 			public void componentMoved(ComponentEvent arg0) {
 				if (con.getServer()!=null){
-					// TODO rekening houden met scherm groote
 					con.getServer().sendCordinates(((Double) gui.getFrame().getLocation().getX()).intValue() , ((Double) gui.getFrame().getLocation().getY()).intValue());
 				}				
 			}

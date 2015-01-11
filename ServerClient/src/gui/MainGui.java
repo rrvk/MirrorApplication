@@ -45,6 +45,10 @@ public class MainGui {
 	public static void changeLocationFrame(int x,int y){
 		frame.setLocation(x, y);
 	}
+	
+	public static void changeFrameSize(int h,int w){
+		frame.setSize(w, h);
+	}
 
 	/**
 	 * Initialize the contents of the frame.

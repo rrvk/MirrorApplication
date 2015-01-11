@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class Server implements Runnable{
 	private Integer poort;
+	private ServerSendToClients send = new ServerSendToClients();
 	
 	public static Map<Integer, ClientInfo> clients= new HashMap<Integer, ClientInfo>();
 	public static Integer count=0;
@@ -28,8 +29,14 @@ public class Server implements Runnable{
 	}
 	
 	public void sendCordinates(int x, int y){
-		ServerSendToClients send = new ServerSendToClients("Move");
 		send.setXandY(x, y);
+		send.setCommando("Move");
+		send.send();
+	}
+	
+	public void sendSize(int h, int w){
+		send.setSize(h, w);
+		send.setCommando("Size");
 		send.send();
 	}
 

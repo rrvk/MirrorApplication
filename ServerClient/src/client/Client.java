@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
+import main.Main;
+
 import org.json.simple.JSONObject;
 
 public class Client implements Runnable{
@@ -96,7 +98,8 @@ public class Client implements Runnable{
 			JSONObject objOntvang = null;
 			while ((objOntvang = (JSONObject)ois.readObject()) != null) {
 				if (objOntvang!=null){
-					if (objOntvang.get("name").equals("Coordinaten")){
+					switch (objOntvang.get("name").toString()) {
+					case "Coordinaten":
 						if (objOntvang.containsKey("x") && objOntvang.containsKey("y")){
 							Integer x = Integer.parseInt(objOntvang.get("x").toString());
 							Integer y = Integer.parseInt(objOntvang.get("y").toString());
@@ -104,6 +107,22 @@ public class Client implements Runnable{
 								MainGui.changeLocationFrame(x,y);
 							}
 						}
+						break;
+					case "Size":
+						if (objOntvang.containsKey("h") && objOntvang.containsKey("w")){
+							// TODO de acties van win7/8 (windows toets pijtle omhoog), nou veranderd die de coordinaten niet
+							Integer h = Integer.parseInt(objOntvang.get("h").toString());
+							Integer w = Integer.parseInt(objOntvang.get("w").toString());
+							if ((h>0 && h<this.y) && (w>0 && w<this.x)){
+								MainGui.changeFrameSize(h, w);
+							}
+							else if(h>this.y || w>this.x){
+								MainGui.changeFrameSize(this.y, this.x);
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
