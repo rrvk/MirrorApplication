@@ -2,6 +2,7 @@ package server;
 
 import gui.MainGui;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -63,5 +64,21 @@ public class Server implements Runnable{
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
+	}
+
+	public void sendState(int newState) {
+		send.setState(newState);
+		send.setCommando("State");
+		send.send();
+		
+	}
+
+	public void closeClients() throws IOException {
+		for(Iterator<Map.Entry<Integer, ClientInfo>> it = clients.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<Integer, ClientInfo> entry = it.next();
+			entry.getValue().getClient().close();
+			it.remove();
+    	}
+		
 	}
 }

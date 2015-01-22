@@ -94,4 +94,8 @@ public class MainGui {
 		lblLog.setBounds(123, 8, 46, 14);
 		frame.getContentPane().add(lblLog);
 	}
+
+	public static void changeFrameState(Integer state) {
+		frame.setState(state);
+	}
 }

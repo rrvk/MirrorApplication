@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
+import java.io.IOException;
 
 import controler.MainControler;
 import gui.MainGui;
@@ -38,13 +42,60 @@ public class MainGuiHandeler {
 			}
 			
 			@Override
-			public void componentHidden(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
+			public void componentHidden(ComponentEvent arg0) {}
+		});
+		
+		gui.getFrame().addWindowStateListener(new WindowStateListener() {
+			@Override
+			public void windowStateChanged(WindowEvent e) {
+				if (con.getServer()!=null){
+					con.getServer().sendState(e.getNewState());
+				}
 				
 			}
 		});
-		// TODO Auto-generated method stub
 		
+		gui.getFrame().addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent e) {}
+			
+			@Override
+			public void windowIconified(WindowEvent e) {}
+			
+			@Override
+			public void windowDeiconified(WindowEvent e) {}
+			
+			@Override
+			public void windowDeactivated(WindowEvent e) {}
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (con.getServer()!=null){
+					// alle clients sluiten
+					try {
+						con.getServer().closeClients();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}else if(con.getClient()!=null){
+					try {
+						con.getClient().exitClient();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					// aan de server melden dat client gaat sluiten
+				}
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent e) {}
+			
+			@Override
+			public void windowActivated(WindowEvent e) {}
+		});
 	}
 	public void addButtonHandelers() {
 		gui.getBtnVerbinden().addActionListener(new ActionListener() {

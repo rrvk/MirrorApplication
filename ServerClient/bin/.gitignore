@@ -1,5 +1,6 @@
 /client/
-/server/
-/outputStream/
-/handelers/
+/controler/
 /gui/
+/handelers/
+/main/
+/server/

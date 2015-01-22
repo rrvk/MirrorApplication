@@ -4,21 +4,22 @@ import gui.MainGui;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketException;
-
-import main.Main;
 
 import org.json.simple.JSONObject;
 
 public class Client implements Runnable{
 	String ip;
 	Integer poort;
+	Socket client;
+	// als deze true is dan word deze client gesloten
+	private boolean exit=false;
 	int x;
 	int y;
 	
@@ -31,6 +32,10 @@ public class Client implements Runnable{
 	public void setIpAndPoort(String ip, Integer poort){
 		this.ip=ip;
 		this.poort=poort;
+	}
+	
+	public void exitClient() throws IOException{
+		exit = true;
 	}
 	
 	/**
@@ -87,30 +92,33 @@ public class Client implements Runnable{
 		}
 		return false;
 	}
+	
 	@Override
 	public void run() {
 		try {
-			Socket client = new Socket(ip,poort);
+			client = new Socket(ip,poort);
 			// dit om te kijken wat er allemaal wordt ontvangen van de server, dus wat we moeten aanpassen
 			InputStream is = client.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);
 
 			JSONObject objOntvang = null;
-			while ((objOntvang = (JSONObject)ois.readObject()) != null) {
+			while ((objOntvang = (JSONObject)ois.readObject()) != null && exit==false) {
 				if (objOntvang!=null){
 					switch (objOntvang.get("name").toString()) {
 					case "Coordinaten":
 						if (objOntvang.containsKey("x") && objOntvang.containsKey("y")){
 							Integer x = Integer.parseInt(objOntvang.get("x").toString());
 							Integer y = Integer.parseInt(objOntvang.get("y").toString());
-							if ((x>0 && x<this.x) && (y>0 && y<this.y)){
+							if ((x>=0 && x<=this.x) && (y>=0 && y<=this.y)){
 								MainGui.changeLocationFrame(x,y);
+							}
+							else if(x<0 && y<0){
+								MainGui.changeLocationFrame(0,0);
 							}
 						}
 						break;
 					case "Size":
 						if (objOntvang.containsKey("h") && objOntvang.containsKey("w")){
-							// TODO de acties van win7/8 (windows toets pijtle omhoog), nou veranderd die de coordinaten niet
 							Integer h = Integer.parseInt(objOntvang.get("h").toString());
 							Integer w = Integer.parseInt(objOntvang.get("w").toString());
 							if ((h>0 && h<this.y) && (w>0 && w<this.x)){
@@ -121,23 +129,24 @@ public class Client implements Runnable{
 							}
 						}
 						break;
+					case "State":
+						if (objOntvang.containsKey("state")){
+							Integer state = Integer.parseInt(objOntvang.get("state").toString());
+								MainGui.changeFrameState(state);
+						}
+						break;
 					default:
 						break;
 					}
 				}
 			}
 			client.close();
+		} catch (EOFException e2){
+			MainGui.getTxtAreaLog().append("De server is gesloten\n");
 		} catch (IOException e1) {
-			if (e1.getMessage().contains("Connection reset")){
-				MainGui.getTxtAreaLog().append("De server is gesloten");
-			}
-			else{
-				// 	TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			MainGui.getTxtAreaLog().append("ERROR Server werkt niet meer mee, verbinding gesloten\n");
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MainGui.getTxtAreaLog().append("ERROR iets raars binnengekregen wat we niet begrijpen, verbinding gesloten\n");
 		} 
 	}
 }

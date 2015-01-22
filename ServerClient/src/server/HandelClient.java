@@ -28,21 +28,31 @@ public class HandelClient implements Runnable {
 				if (objOntvangt.get("name").equals("ping")){
 					if (objOntvangt.get("testString").equals("Hallo iemand hier?")){
 						sendPing("Yep iemand is hier.");
+						MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") heeft goed gepingt en is gesloten\n");
 					}
 					else{
 						// hmm dit begrijpen we niet 
 						sendPing("Ik begrijp je niet");
+						MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") heeft verkeerd gepingt en is gesloten\n");
 					}
+				}		
+				else{
+					MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") geeft iets raars terug dus sluiten\n");
 				}
 			}
 			ois.close();
 			is.close();
 			clientInfo.getClient().close();
 			Server.removeItemFromClients(clientNumber);
-			MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") gesloten\n");
 		}
 		catch( IOException e){
-			System.out.println(e.getMessage());
+			if (e.getMessage().contains("Connection reset")){
+				MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") is gesloten \n");
+				Server.removeItemFromClients(clientNumber);
+			}
+			else{
+				System.out.println(e.getMessage());
+			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

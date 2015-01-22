@@ -16,6 +16,7 @@ public class ServerSendToClients{
 	private int y;
 	private int h;
 	private int w;
+	private int state;
 	
 	public void setCommando(String commando){
 		this.commando=commando;
@@ -43,7 +44,7 @@ public class ServerSendToClients{
 			try {
 				sendToAll(objCoordinaten);
 			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in de coordniaten zenden");
+				MainGui.getTxtAreaLog().append("Error in de coordniaten zenden\n");
 			}
 			break;
 		case "Size":
@@ -55,7 +56,18 @@ public class ServerSendToClients{
 			try {
 				sendToAll(objSize);
 			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote");
+				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
+			}
+			break;
+		case "State":
+			JSONObject objState = new JSONObject();
+			objState.put("name", "State");
+			objState.put("state", state);
+			
+			try {
+				sendToAll(objState);
+			} catch (IOException e) {
+				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
 			}
 			break;
 		default:
@@ -74,5 +86,9 @@ public class ServerSendToClients{
 			oos.writeObject(obj);
 	        oos.flush();
     	}
+	}
+
+	public void setState(int newState) {
+		state = newState;
 	}
 }
