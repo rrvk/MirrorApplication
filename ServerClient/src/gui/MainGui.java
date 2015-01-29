@@ -14,6 +14,7 @@ public class MainGui {
 	private JTextField txtPoort;
 	private static JTextArea txtArLog; 
 	private JButton btnVerbinden;
+	private static JTextField txtMirrorField;
 
 	/**
 	 * Create the application.
@@ -34,6 +35,10 @@ public class MainGui {
 		return txtPoort;
 	}
 	
+	public JTextField getTxtMirrorField(){
+		return txtMirrorField;
+	}
+	
 	public static JTextArea getTxtAreaLog(){
 		return txtArLog;
 	}
@@ -48,6 +53,10 @@ public class MainGui {
 	
 	public static void changeFrameSize(int h,int w){
 		frame.setSize(w, h);
+	}
+	
+	public static void setMirrorTekst(String tekst){
+		txtMirrorField.setText(tekst);
 	}
 
 	/**
@@ -93,6 +102,11 @@ public class MainGui {
 		JLabel lblLog = new JLabel("Log:");
 		lblLog.setBounds(123, 8, 46, 14);
 		frame.getContentPane().add(lblLog);
+		
+		txtMirrorField = new JTextField();
+		txtMirrorField.setBounds(10, 184, 103, 20);
+		frame.getContentPane().add(txtMirrorField);
+		txtMirrorField.setColumns(10);
 	}
 
 	public static void changeFrameState(Integer state) {

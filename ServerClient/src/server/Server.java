@@ -81,4 +81,10 @@ public class Server implements Runnable{
     	}
 		
 	}
+
+	public void sendMirrorField(String mirrorTekst) {
+		send.setMirrorField(mirrorTekst);
+		send.setCommando("Mirror_String");
+		send.send();		
+	}
 }

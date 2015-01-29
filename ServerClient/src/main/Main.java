@@ -18,6 +18,6 @@ public class Main {
 		// maak een handeler die de gui acties opvangt.
 		MainGuiHandeler handeler = new MainGuiHandeler(con, gui);
 		handeler.addButtonHandelers();
-		handeler.addMovementHandelers();
+		handeler.addMirrorHandelers();
 	}
 }

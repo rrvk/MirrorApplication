@@ -17,6 +17,7 @@ public class ServerSendToClients{
 	private int h;
 	private int w;
 	private int state;
+	private String mirrorText;
 	
 	public void setCommando(String commando){
 		this.commando=commando;
@@ -70,6 +71,17 @@ public class ServerSendToClients{
 				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
 			}
 			break;
+		case "Mirror_String":
+			JSONObject objMirrorString = new JSONObject();
+			objMirrorString.put("name", "mirrorTekst");
+			objMirrorString.put("tekst", mirrorText);
+			
+			try {
+				sendToAll(objMirrorString);
+			} catch (IOException e) {
+				MainGui.getTxtAreaLog().append("Error in het zenden van mirrortekst \n");
+			}
+			break;
 		default:
 			break;
 		}
@@ -90,5 +102,9 @@ public class ServerSendToClients{
 
 	public void setState(int newState) {
 		state = newState;
+	}
+
+	public void setMirrorField(String mirrorTekst) {
+		this.mirrorText =mirrorTekst;
 	}
 }

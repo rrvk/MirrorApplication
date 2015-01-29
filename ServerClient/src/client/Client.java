@@ -132,7 +132,13 @@ public class Client implements Runnable{
 					case "State":
 						if (objOntvang.containsKey("state")){
 							Integer state = Integer.parseInt(objOntvang.get("state").toString());
-								MainGui.changeFrameState(state);
+							MainGui.changeFrameState(state);
+						}
+						break;
+					case "mirrorTekst":
+						if (objOntvang.containsKey("tekst")){
+							String tekst= objOntvang.get("tekst").toString();
+							MainGui.setMirrorTekst(tekst);
 						}
 						break;
 					default:

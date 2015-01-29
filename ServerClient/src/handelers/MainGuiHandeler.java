@@ -9,6 +9,9 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.IOException;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import controler.MainControler;
 import gui.MainGui;
 
@@ -19,13 +22,11 @@ public class MainGuiHandeler {
 		this.gui=gui;
 		this.con=con;
 	}
-	public void addMovementHandelers() {
+	
+	public void addMirrorHandelers() {
 		gui.getFrame().addComponentListener(new ComponentListener() {
 			@Override
-			public void componentShown(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void componentShown(ComponentEvent arg0) {}
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) {
@@ -95,6 +96,30 @@ public class MainGuiHandeler {
 			
 			@Override
 			public void windowActivated(WindowEvent e) {}
+		});
+	
+		gui.getTxtMirrorField().getDocument().addDocumentListener(new DocumentListener() {
+			
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				changeTekst();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				changeTekst();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				changeTekst();				
+			}
+			
+			private void changeTekst(){
+				if (con.getServer()!=null){
+					con.getServer().sendMirrorField(gui.getTxtMirrorField().getText().toString());
+				}
+			}
 		});
 	}
 	public void addButtonHandelers() {
