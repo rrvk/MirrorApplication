@@ -1,9 +1,14 @@
 package handelers;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
@@ -11,6 +16,7 @@ import java.io.IOException;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 
 import controler.MainControler;
 import gui.MainGui;
@@ -21,41 +27,10 @@ public class MainGuiHandeler {
 	public MainGuiHandeler(MainControler con, MainGui gui){
 		this.gui=gui;
 		this.con=con;
+		standaardHandelers();
 	}
 	
-	public void addMirrorHandelers() {
-		gui.getFrame().addComponentListener(new ComponentListener() {
-			@Override
-			public void componentShown(ComponentEvent arg0) {}
-			
-			@Override
-			public void componentResized(ComponentEvent arg0) {
-				if (con.getServer()!=null){
-					con.getServer().sendSize(gui.getFrame().getHeight(), gui.getFrame().getWidth());
-				}				
-			}
-			
-			@Override
-			public void componentMoved(ComponentEvent arg0) {
-				if (con.getServer()!=null){
-					con.getServer().sendCordinates(((Double) gui.getFrame().getLocation().getX()).intValue() , ((Double) gui.getFrame().getLocation().getY()).intValue());
-				}				
-			}
-			
-			@Override
-			public void componentHidden(ComponentEvent arg0) {}
-		});
-		
-		gui.getFrame().addWindowStateListener(new WindowStateListener() {
-			@Override
-			public void windowStateChanged(WindowEvent e) {
-				if (con.getServer()!=null){
-					con.getServer().sendState(e.getNewState());
-				}
-				
-			}
-		});
-		
+	public void standaardHandelers(){
 		gui.getFrame().addWindowListener(new WindowListener() {
 			
 			@Override
@@ -97,7 +72,41 @@ public class MainGuiHandeler {
 			@Override
 			public void windowActivated(WindowEvent e) {}
 		});
+	}
 	
+	public void addMirrorHandelers() {
+		gui.getFrame().addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {}
+			
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				if (con.getServer()!=null && con.getMode()==MainControler.modeMiror){
+					con.getServer().sendSize(gui.getFrame().getHeight(), gui.getFrame().getWidth());
+				}				
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				if (con.getServer()!=null && con.getMode()==MainControler.modeMiror){
+					con.getServer().sendCordinates(((Double) gui.getFrame().getLocation().getX()).intValue() , ((Double) gui.getFrame().getLocation().getY()).intValue());
+				}				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent arg0) {}
+		});
+		
+		gui.getFrame().addWindowStateListener(new WindowStateListener() {
+			@Override
+			public void windowStateChanged(WindowEvent e) {
+				if (con.getServer()!=null&& con.getMode()==MainControler.modeMiror){
+					con.getServer().sendState(e.getNewState());
+				}
+				
+			}
+		});
+		
 		gui.getTxtMirrorField().getDocument().addDocumentListener(new DocumentListener() {
 			
 			@Override
@@ -116,12 +125,60 @@ public class MainGuiHandeler {
 			}
 			
 			private void changeTekst(){
-				if (con.getServer()!=null){
+				if (con.getServer()!=null && con.getMode()==MainControler.modeMiror){
 					con.getServer().sendMirrorField(gui.getTxtMirrorField().getText().toString());
 				}
 			}
 		});
 	}
+	
+	public void addExtendHandelers() {
+		class MyDispatcher implements KeyEventDispatcher {
+	        @Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+	        	int keyCode = e.getKeyCode();
+				switch (keyCode) {
+				case KeyEvent.VK_ALT:
+					System.out.println("alt");
+					con.setKeyCommand(1);					
+					break;
+				case KeyEvent.VK_UP:
+					if (con.getKeyCommand()==1){
+						System.out.println("alt+omhoog");
+						con.setKeyCommand(0);
+					}
+					break;
+				case KeyEvent.VK_DOWN:
+					if (con.getKeyCommand()==1){
+						System.out.println("alt+down");
+						con.setKeyCommand(0);
+					}
+					break;
+				case KeyEvent.VK_LEFT:
+					if (con.getKeyCommand()==1){
+						System.out.println("alt+left");	
+						con.setKeyCommand(0);
+					}
+					break;
+				case KeyEvent.VK_RIGHT:
+					if (con.getKeyCommand()==1){
+						System.out.println("alt+right");	
+						con.setKeyCommand(0);
+					}
+					break;
+
+				default:
+					con.setKeyCommand(0);
+					break;
+				}			
+	            return false;
+	        }
+	    }
+
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new MyDispatcher());
+	}
+	
 	public void addButtonHandelers() {
 		gui.getBtnVerbinden().addActionListener(new ActionListener() {
 			@SuppressWarnings("static-access")
@@ -145,6 +202,7 @@ public class MainGuiHandeler {
 								gui.getTxtAreaLog().append("Kan de server niet vinden\n");
 								gui.getTxtAreaLog().append("Er is een nieuwe server aangemaakt\n");
 								gui.getFrame().setTitle("Server Side");
+								gui.setModeChoice();
 								// server offline
 							}
 							//gui.getBtnVerbinden().setEnabled(false);
@@ -164,5 +222,27 @@ public class MainGuiHandeler {
 			}
 		});
 		
+		gui.getRDbtnExtendMode().addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (con.getServer()!=null){
+					if (e.getStateChange()==ItemEvent.SELECTED){
+						con.setMode(MainControler.modeExtend);
+					}
+				}
+			}
+		}); 
+		gui.getRDbtnMirrorMode().addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (con.getServer()!=null){
+					if (e.getStateChange()==ItemEvent.SELECTED){
+						con.setMode(MainControler.modeMiror);
+					}
+				}
+			}
+		});
 	}
 }

@@ -46,7 +46,7 @@ public class Client implements Runnable{
 	@SuppressWarnings("unchecked")
 	public boolean ping(String ip, Integer poort){
 		// 10 keer pingen om te kijken of de server ook bestaat
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1; i++) {
 			try{
 				Socket client = new Socket(ip,poort);
 				

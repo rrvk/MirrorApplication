@@ -5,9 +5,19 @@ import server.Server;
 import client.Client;
 
 public class MainControler {
-	MainGui gui;
-	Server ser=null;
-	Client clin=null;
+	private MainGui gui;
+	private Server ser=null;
+	private Client clin=null;
+	public final static int modeMiror=1;
+	public final static int modeExtend=1;
+	private int keyCommand=0;
+	/* aan de mode kun je zien wat de applicatie doet.
+	 * 0=niks
+	 * 1=mirror
+	 * 2=het doorgeven aan andere computer
+	 */
+	private int mode=0;
+	
 	public void setGui(MainGui gui){
 		this.gui=gui;
 	}
@@ -39,5 +49,21 @@ public class MainControler {
 			t.start();
 			return "Eigen Server opzetten";
 		}
+	}
+
+	public int getMode() {
+		return mode;
+	}
+
+	public void setMode(int mode) {
+		this.mode = mode;
+	}
+
+	public void setKeyCommand(int i) {
+		keyCommand = i;		
+	}
+
+	public int getKeyCommand() {
+		return keyCommand;
 	}
 }

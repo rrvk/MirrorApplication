@@ -1,11 +1,13 @@
 package gui;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
+import javax.swing.JRadioButton;
 
 public class MainGui {
 
@@ -15,6 +17,8 @@ public class MainGui {
 	private static JTextArea txtArLog; 
 	private JButton btnVerbinden;
 	private static JTextField txtMirrorField;
+	private JRadioButton rdbtnMirrorMode = new JRadioButton("Mirror Mode");
+	private JRadioButton rdbtnExtendMode = new JRadioButton("Extend Mode");
 
 	/**
 	 * Create the application.
@@ -29,6 +33,14 @@ public class MainGui {
 	
 	public JTextField getTxtIP(){
 		return txtIP;
+	}
+	
+	public JRadioButton getRDbtnMirrorMode(){
+		return rdbtnMirrorMode;
+	}
+	
+	public JRadioButton getRDbtnExtendMode(){
+		return rdbtnExtendMode;
 	}
 	
 	public JTextField getTxtPoort(){
@@ -107,9 +119,27 @@ public class MainGui {
 		txtMirrorField.setBounds(10, 184, 103, 20);
 		frame.getContentPane().add(txtMirrorField);
 		txtMirrorField.setColumns(10);
+		
+		JLabel lblMirrorField = new JLabel("mirror field");
+		lblMirrorField.setBounds(10, 168, 103, 14);
+		frame.getContentPane().add(lblMirrorField);
 	}
 
 	public static void changeFrameState(Integer state) {
 		frame.setState(state);
+	}
+
+	public void setModeChoice() { 
+		rdbtnMirrorMode.setSelected(true);
+		rdbtnMirrorMode.setBounds(10, 222, 109, 23);
+		frame.getContentPane().add(rdbtnMirrorMode);
+		
+		rdbtnExtendMode.setBounds(10, 248, 109, 23);
+		frame.getContentPane().add(rdbtnExtendMode);
+		
+		ButtonGroup modeGroup = new ButtonGroup();
+		modeGroup.add(rdbtnMirrorMode);
+		modeGroup.add(rdbtnExtendMode);
+		frame.repaint();
 	}
 }

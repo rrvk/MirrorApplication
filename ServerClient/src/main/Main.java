@@ -19,5 +19,6 @@ public class Main {
 		MainGuiHandeler handeler = new MainGuiHandeler(con, gui);
 		handeler.addButtonHandelers();
 		handeler.addMirrorHandelers();
+		handeler.addExtendHandelers();
 	}
 }
