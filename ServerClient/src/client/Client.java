@@ -14,12 +14,15 @@ import java.net.Socket;
 
 import org.json.simple.JSONObject;
 
+import controler.ClientControler;
+
 public class Client implements Runnable{
 	String ip;
 	Integer poort;
 	Socket client;
 	// als deze true is dan word deze client gesloten
 	private boolean exit=false;
+	private ClientControler con;
 	int x;
 	int y;
 	
@@ -37,6 +40,11 @@ public class Client implements Runnable{
 	public void exitClient() throws IOException{
 		exit = true;
 	}
+	
+	public void setControler(ClientControler con){
+		this.con=con;		
+	}
+
 	
 	/**
 	 * Kijkt of de server online is. 
@@ -95,64 +103,75 @@ public class Client implements Runnable{
 	
 	@Override
 	public void run() {
-		try {
-			client = new Socket(ip,poort);
-			// dit om te kijken wat er allemaal wordt ontvangen van de server, dus wat we moeten aanpassen
-			InputStream is = client.getInputStream();  
-			ObjectInputStream ois = new ObjectInputStream(is);
-
-			JSONObject objOntvang = null;
-			while ((objOntvang = (JSONObject)ois.readObject()) != null && exit==false) {
-				if (objOntvang!=null){
-					switch (objOntvang.get("name").toString()) {
-					case "Coordinaten":
-						if (objOntvang.containsKey("x") && objOntvang.containsKey("y")){
-							Integer x = Integer.parseInt(objOntvang.get("x").toString());
-							Integer y = Integer.parseInt(objOntvang.get("y").toString());
-							if ((x>=0 && x<=this.x) && (y>=0 && y<=this.y)){
-								MainGui.changeLocationFrame(x,y);
+		if (con!=null){
+			try {
+				client = new Socket(ip,poort);
+				// dit om te kijken wat er allemaal wordt ontvangen van de server, dus wat we moeten aanpassen
+				InputStream is = client.getInputStream();  
+				ObjectInputStream ois = new ObjectInputStream(is);
+	
+				JSONObject objOntvang = null;
+				while ((objOntvang = (JSONObject)ois.readObject()) != null && exit==false) {
+					if (objOntvang!=null){
+						switch (objOntvang.get("name").toString()) {
+						case "Coordinaten":
+							if (objOntvang.containsKey("x") && objOntvang.containsKey("y")){
+								Integer x = Integer.parseInt(objOntvang.get("x").toString());
+								Integer y = Integer.parseInt(objOntvang.get("y").toString());
+								if ((x>=0 && x<=this.x) && (y>=0 && y<=this.y)){
+									con.setCoordinaten(x,y);
+								}
+								else if(x<0 && y<0){
+									con.setCoordinaten(0,0);
+								}
 							}
-							else if(x<0 && y<0){
-								MainGui.changeLocationFrame(0,0);
+							break;
+						case "Size":
+							if (objOntvang.containsKey("h") && objOntvang.containsKey("w")){
+								Integer h = Integer.parseInt(objOntvang.get("h").toString());
+								Integer w = Integer.parseInt(objOntvang.get("w").toString());
+								if ((h>0 && h<this.y) && (w>0 && w<this.x)){
+									con.setSize(h,w);
+								}
+								else if(h>this.y || w>this.x){
+									con.setSize(this.y,this.x);
+								}
 							}
-						}
-						break;
-					case "Size":
-						if (objOntvang.containsKey("h") && objOntvang.containsKey("w")){
-							Integer h = Integer.parseInt(objOntvang.get("h").toString());
-							Integer w = Integer.parseInt(objOntvang.get("w").toString());
-							if ((h>0 && h<this.y) && (w>0 && w<this.x)){
-								MainGui.changeFrameSize(h, w);
+							break;
+						case "State":
+							if (objOntvang.containsKey("state")){
+								con.setState(Integer.parseInt(objOntvang.get("state").toString()));
 							}
-							else if(h>this.y || w>this.x){
-								MainGui.changeFrameSize(this.y, this.x);
+							break;
+						case "mirrorTekst":
+							if (objOntvang.containsKey("tekst")){
+								con.setMirrorTekst(objOntvang.get("tekst").toString());
 							}
+							break;
+						case "ScreenToClient":
+							con.activateSceen();
+							break;
+						case "Mode":
+							if (objOntvang.containsKey("mode")){
+								con.changeMode(Integer.parseInt(objOntvang.get("mode").toString()));
+							}
+							break;
+						default:
+							break;
 						}
-						break;
-					case "State":
-						if (objOntvang.containsKey("state")){
-							Integer state = Integer.parseInt(objOntvang.get("state").toString());
-							MainGui.changeFrameState(state);
-						}
-						break;
-					case "mirrorTekst":
-						if (objOntvang.containsKey("tekst")){
-							String tekst= objOntvang.get("tekst").toString();
-							MainGui.setMirrorTekst(tekst);
-						}
-						break;
-					default:
-						break;
 					}
 				}
-			}
-			client.close();
-		} catch (EOFException e2){
-			MainGui.getTxtAreaLog().append("De server is gesloten\n");
-		} catch (IOException e1) {
-			MainGui.getTxtAreaLog().append("ERROR Server werkt niet meer mee, verbinding gesloten\n");
-		} catch (ClassNotFoundException e) {
-			MainGui.getTxtAreaLog().append("ERROR iets raars binnengekregen wat we niet begrijpen, verbinding gesloten\n");
-		} 
+				client.close();
+			} catch (EOFException e2){
+				MainGui.getTxtAreaLog().append("De server is gesloten\n");
+			} catch (IOException e1) {
+				MainGui.getTxtAreaLog().append("ERROR Server werkt niet meer mee, verbinding gesloten\n");
+			} catch (ClassNotFoundException e) {
+				MainGui.getTxtAreaLog().append("ERROR iets raars binnengekregen wat we niet begrijpen, verbinding gesloten\n");
+			} 
+		}
+		else{
+			MainGui.getTxtAreaLog().append("ERROR controler werkt niet dus helaas pindakaas\n");
+		}
 	}
 }

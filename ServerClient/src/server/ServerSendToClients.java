@@ -11,79 +11,112 @@ import org.json.simple.JSONObject;
 
 public class ServerSendToClients{
 	private String commando="";
-	// deze worden gebruikt voor de beweging van het scherm
-	private int x;
-	private int y;
-	private int h;
-	private int w;
-	private int state;
-	private String mirrorText;
 	
 	public void setCommando(String commando){
 		this.commando=commando;
 	}
 	
-	public void setXandY(int x, int y){
-		this.x=x;
-		this.y=y;
+	/**
+	 * this is for sending a string to the client
+	 * comatile with Mirror_String
+	 * @param str
+	 */
+	@SuppressWarnings("unchecked")
+	public void send(String str){
+		switch (commando) {
+			case "Mirror_String":
+				JSONObject objMirrorString = new JSONObject();
+				objMirrorString.put("name", "mirrorTekst");
+				objMirrorString.put("tekst", str);
+				
+				try {
+					sendToAll(objMirrorString);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in het zenden van mirrortekst \n");
+				}
+				break;
+			case "ScreenToClient":
+				JSONObject objScreenToClient = new JSONObject();
+				objScreenToClient.put("name", "ScreenToClient");
+				// TODO dingen te doen met die string welke client etc
+				
+				try {
+					sendToAll(objScreenToClient);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in het zenden van screen \n");
+				}
+				break;
+				
+				
+		}
 	}
 	
-	public void setSize(int h, int w) {
-		this.h = h;
-		this.w = w;		
-	}
-
+	/**
+	 * This is for sending 1 integer to the client
+	 * comatible with State,Mode
+	 * @param i
+	 */
 	@SuppressWarnings("unchecked")
-	public void send() {
+	public void send(int i){
 		switch (commando) {
-		case "Move":
-			JSONObject objCoordinaten = new JSONObject();
-			objCoordinaten.put("name", "Coordinaten");
-			objCoordinaten.put("x", x);
-			objCoordinaten.put("y", y);
-			
-			try {
-				sendToAll(objCoordinaten);
-			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in de coordniaten zenden\n");
-			}
-			break;
-		case "Size":
-			JSONObject objSize = new JSONObject();
-			objSize.put("name", "Size");
-			objSize.put("h", h);
-			objSize.put("w", w);
-			
-			try {
-				sendToAll(objSize);
-			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
-			}
-			break;
-		case "State":
-			JSONObject objState = new JSONObject();
-			objState.put("name", "State");
-			objState.put("state", state);
-			
-			try {
-				sendToAll(objState);
-			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
-			}
-			break;
-		case "Mirror_String":
-			JSONObject objMirrorString = new JSONObject();
-			objMirrorString.put("name", "mirrorTekst");
-			objMirrorString.put("tekst", mirrorText);
-			
-			try {
-				sendToAll(objMirrorString);
-			} catch (IOException e) {
-				MainGui.getTxtAreaLog().append("Error in het zenden van mirrortekst \n");
-			}
-			break;
-		default:
-			break;
+			case "State":
+				JSONObject objState = new JSONObject();
+				objState.put("name", "State");
+				objState.put("state", i);
+				
+				try {
+					sendToAll(objState);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
+				}
+				break;
+			case "Mode":
+				JSONObject objMode = new JSONObject();
+				objMode.put("name", "Mode");
+				objMode.put("mode", i);
+				
+				try {
+					sendToAll(objMode);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in het veranderen van de mode\n");
+				}
+				break;
+		}
+	}
+	
+	/**
+	 * this is to send 2 integers to the client
+	 * compatible with Move and Size
+	 * @param x/h
+	 * @param y/w
+	 */
+	@SuppressWarnings("unchecked")
+	public void send(int x, int y){
+		switch (commando) {
+			case "Move":
+				JSONObject objCoordinaten = new JSONObject();
+				objCoordinaten.put("name", "Coordinaten");
+				objCoordinaten.put("x", x);
+				objCoordinaten.put("y", y);
+				
+				try {
+					sendToAll(objCoordinaten);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in de coordniaten zenden\n");
+				}
+				break;
+			case "Size":
+				JSONObject objSize = new JSONObject();
+				objSize.put("name", "Size");
+				objSize.put("h", x);
+				objSize.put("w", y);
+				
+				try {
+					sendToAll(objSize);
+				} catch (IOException e) {
+					MainGui.getTxtAreaLog().append("Error in het veranderen van de groote\n");
+				}
+				break;
 		}
 	}
 	
@@ -98,13 +131,5 @@ public class ServerSendToClients{
 			oos.writeObject(obj);
 	        oos.flush();
     	}
-	}
-
-	public void setState(int newState) {
-		state = newState;
-	}
-
-	public void setMirrorField(String mirrorTekst) {
-		this.mirrorText =mirrorTekst;
 	}
 }

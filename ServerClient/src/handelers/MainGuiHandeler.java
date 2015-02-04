@@ -140,33 +140,40 @@ public class MainGuiHandeler {
 				switch (keyCode) {
 				case KeyEvent.VK_ALT:
 					System.out.println("alt");
-					con.setKeyCommand(1);					
+					con.setKeyCommand(1);	
 					break;
 				case KeyEvent.VK_UP:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+omhoog");
 						con.setKeyCommand(0);
+						con.getServer().sendScreenToClient(gui);
+						gui.getFrame().setVisible(false);
 					}
 					break;
 				case KeyEvent.VK_DOWN:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+down");
 						con.setKeyCommand(0);
+						con.getServer().sendScreenToClient(gui);
+						gui.getFrame().setVisible(false);
 					}
 					break;
 				case KeyEvent.VK_LEFT:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+left");	
 						con.setKeyCommand(0);
+						con.getServer().sendScreenToClient(gui);
+						gui.getFrame().setVisible(false);
 					}
 					break;
 				case KeyEvent.VK_RIGHT:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+right");	
 						con.setKeyCommand(0);
+						con.getServer().sendScreenToClient(gui);
+						gui.getFrame().setVisible(false);
 					}
 					break;
-
 				default:
 					con.setKeyCommand(0);
 					break;
@@ -229,6 +236,7 @@ public class MainGuiHandeler {
 				if (con.getServer()!=null){
 					if (e.getStateChange()==ItemEvent.SELECTED){
 						con.setMode(MainControler.modeExtend);
+						con.getServer().sendMode(MainControler.modeExtend);
 					}
 				}
 			}
@@ -240,6 +248,7 @@ public class MainGuiHandeler {
 				if (con.getServer()!=null){
 					if (e.getStateChange()==ItemEvent.SELECTED){
 						con.setMode(MainControler.modeMiror);
+						con.getServer().sendMode(MainControler.modeMiror);
 					}
 				}
 			}

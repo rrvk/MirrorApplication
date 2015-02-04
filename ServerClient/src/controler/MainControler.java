@@ -9,7 +9,7 @@ public class MainControler {
 	private Server ser=null;
 	private Client clin=null;
 	public final static int modeMiror=1;
-	public final static int modeExtend=1;
+	public final static int modeExtend=2;
 	private int keyCommand=0;
 	/* aan de mode kun je zien wat de applicatie doet.
 	 * 0=niks
@@ -33,6 +33,11 @@ public class MainControler {
 	public String searchOrCreate(String ip, Integer poort){
 		Client cl = new Client();
 		if (cl.ping(ip,poort)){
+			// this is the client controler deze zorgt voor de client om zijn spul aftehandelen
+			ClientControler con = new ClientControler();
+			con.setGui(gui);
+			cl.setControler(con);
+			// TODO mode opvragen van server zodat de client direct goed staat.
 			clin = cl;
 			cl.setIpAndPoort(ip, poort);
 			Thread t = new Thread(cl);

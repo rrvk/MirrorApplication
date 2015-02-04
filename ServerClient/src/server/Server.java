@@ -28,18 +28,6 @@ public class Server implements Runnable{
 	public Server(Integer poort){
 		this.poort= poort;
 	}
-	
-	public void sendCordinates(int x, int y){
-		send.setXandY(x, y);
-		send.setCommando("Move");
-		send.send();
-	}
-	
-	public void sendSize(int h, int w){
-		send.setSize(h, w);
-		send.setCommando("Size");
-		send.send();
-	}
 
 	@Override
 	public void run() {
@@ -65,11 +53,20 @@ public class Server implements Runnable{
 			ex.printStackTrace();
 		}
 	}
+	
+	public void sendCordinates(int x, int y){
+		send.setCommando("Move");
+		send.send(x,y);
+	}
+	
+	public void sendSize(int h, int w){
+		send.setCommando("Size");
+		send.send(h,w);
+	}
 
 	public void sendState(int newState) {
-		send.setState(newState);
 		send.setCommando("State");
-		send.send();
+		send.send(newState);
 		
 	}
 
@@ -83,8 +80,23 @@ public class Server implements Runnable{
 	}
 
 	public void sendMirrorField(String mirrorTekst) {
-		send.setMirrorField(mirrorTekst);
 		send.setCommando("Mirror_String");
-		send.send();		
+		send.send(mirrorTekst);		
+	}
+
+	public void sendScreenToClient(MainGui gui) {
+		// TODO spul naar verschillende cielt sturen met pijltjes
+		sendCordinates(gui.getFrame().getX(), gui.getFrame().getY());
+		sendSize(gui.getFrame().getHeight(), gui.getFrame().getWidth());
+		sendState(gui.getFrame().getState());
+		sendMirrorField(gui.getTxtMirrorField().getText());
+		send.setCommando("ScreenToClient");
+		send.send("ClientX");
+	}
+
+	public void sendMode(Integer mode) {
+		send.setCommando("Mode");
+		send.send(mode);
+		
 	}
 }

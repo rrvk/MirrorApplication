@@ -58,18 +58,6 @@ public class MainGui {
 	public JButton getBtnVerbinden(){
 		return btnVerbinden;
 	}
-	
-	public static void changeLocationFrame(int x,int y){
-		frame.setLocation(x, y);
-	}
-	
-	public static void changeFrameSize(int h,int w){
-		frame.setSize(w, h);
-	}
-	
-	public static void setMirrorTekst(String tekst){
-		txtMirrorField.setText(tekst);
-	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -123,10 +111,6 @@ public class MainGui {
 		JLabel lblMirrorField = new JLabel("mirror field");
 		lblMirrorField.setBounds(10, 168, 103, 14);
 		frame.getContentPane().add(lblMirrorField);
-	}
-
-	public static void changeFrameState(Integer state) {
-		frame.setState(state);
 	}
 
 	public void setModeChoice() { 
