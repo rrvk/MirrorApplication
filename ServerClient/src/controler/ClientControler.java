@@ -39,9 +39,7 @@ public class ClientControler {
 	public void activateSceen() {
 		if (mode==MainControler.modeExtend){
 			gui.getFrame().setVisible(true);
-		}
-		// TODO Auto-generated method stub
-		
+		}		
 	}
 
 }

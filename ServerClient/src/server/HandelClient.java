@@ -10,12 +10,15 @@ import java.io.ObjectOutputStream;
 import org.json.simple.JSONObject;
 
 public class HandelClient implements Runnable {
-	ClientInfo clientInfo;
-	Integer clientNumber;
-	public HandelClient(ClientInfo clientInfo, Integer clientNumber){
+	private ClientInfo clientInfo;
+	private Integer clientNumber;
+	private int mode;
+	public HandelClient(ClientInfo clientInfo, Integer clientNumber, int mode){
 		this.clientInfo=clientInfo;
 		this.clientNumber=clientNumber;
+		this.mode=mode;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
 		try {
@@ -35,7 +38,18 @@ public class HandelClient implements Runnable {
 						sendPing("Ik begrijp je niet");
 						MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") heeft verkeerd gepingt en is gesloten\n");
 					}
-				}		
+				}
+				else if(objOntvangt.get("name").equals("mode")){
+					ObjectOutputStream oos = clientInfo.getOOS();
+					JSONObject objVerzend = new JSONObject();
+					objVerzend.put("name", "Mode");
+					objVerzend.put("mode", mode);
+					oos.reset();
+					oos.writeObject(objVerzend);
+					oos.flush();
+					// de client hoeft niet te worden gesloten dus return.
+					return;
+				}
 				else{
 					MainGui.getTxtAreaLog().append("Cliënt("+clientNumber+") geeft iets raars terug dus sluiten\n");
 				}
@@ -54,8 +68,7 @@ public class HandelClient implements Runnable {
 				System.out.println(e.getMessage());
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MainGui.getTxtAreaLog().append("Error in the stream");
 		}
 	}
 	

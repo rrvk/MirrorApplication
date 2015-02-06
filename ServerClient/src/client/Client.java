@@ -54,6 +54,7 @@ public class Client implements Runnable{
 	@SuppressWarnings("unchecked")
 	public boolean ping(String ip, Integer poort){
 		// 10 keer pingen om te kijken of de server ook bestaat
+		// TODO weer 10 van maken
 		for (int i = 0; i < 1; i++) {
 			try{
 				Socket client = new Socket(ip,poort);
@@ -72,8 +73,18 @@ public class Client implements Runnable{
 				// nu moeten we wachten totdat er antwoord komt
 				InputStream is = client.getInputStream();  
 				ObjectInputStream ois = new ObjectInputStream(is);  
-				JSONObject objOntvang = (JSONObject)ois.readObject();  
-				// TODO time out van 10 seconden
+				JSONObject objOntvang = null;
+				Long time = System.currentTimeMillis();
+				// de 10 seconden timeout
+				// TODO testen via laptop
+				while (objOntvang==null && time+10000>System.currentTimeMillis()){
+					objOntvang= (JSONObject)ois.readObject();
+				}
+				if (time+10000<System.currentTimeMillis()){
+					MainGui.getTxtAreaLog().append("Timeout\n");
+					client.close();
+					return false;
+				}
 				if (objOntvang!=null){
 					if (objOntvang.get("name").equals("ping")){
 		        		if (objOntvang.get("testString").equals("Yep iemand is hier.")){
@@ -172,6 +183,22 @@ public class Client implements Runnable{
 		}
 		else{
 			MainGui.getTxtAreaLog().append("ERROR controler werkt niet dus helaas pindakaas\n");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void getModeFromServer() {
+		while (client==null){}
+		try{
+			OutputStream os = client.getOutputStream();  
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			
+			JSONObject objVerzend = new JSONObject();
+	        objVerzend.put("name", "mode");
+	        oos.writeObject(objVerzend);
+	        oos.flush();
+		} catch (IOException e){
+			MainGui.getTxtAreaLog().append("Error in het vragen van de mode\n");
 		}
 	}
 }

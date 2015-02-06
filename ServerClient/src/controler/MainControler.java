@@ -37,19 +37,22 @@ public class MainControler {
 			ClientControler con = new ClientControler();
 			con.setGui(gui);
 			cl.setControler(con);
-			// TODO mode opvragen van server zodat de client direct goed staat.
 			clin = cl;
 			cl.setIpAndPoort(ip, poort);
 			Thread t = new Thread(cl);
 			t.start();
+			cl.getModeFromServer();
 			return "Server Online";
 			// Jeej de server is online ga wat spul doen.
 		}
 		else{
+			// mode standaart op mirrot
+			setMode(modeMiror);
 			System.out.println("mew server niet online eigen maken");
 			// he bah de server is ofline. 
 			// Dan maar een eigen server aanmaken
 			ser = new Server(poort);
+			ser.setMode(getMode());
 			Thread t = new Thread(ser);
 			t.start();
 			return "Eigen Server opzetten";

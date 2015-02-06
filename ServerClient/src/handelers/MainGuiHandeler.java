@@ -18,6 +18,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
+
+import server.Server;
 import controler.MainControler;
 import gui.MainGui;
 
@@ -48,21 +50,15 @@ public class MainGuiHandeler {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if (con.getServer()!=null){
-					// alle clients sluiten
 					try {
+						// alle clients sluiten
 						con.getServer().closeClients();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					} catch (IOException e1) {}
 				}else if(con.getClient()!=null){
 					try {
+						// aan de server melden dat client gaat sluiten
 						con.getClient().exitClient();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					// aan de server melden dat client gaat sluiten
+					} catch (IOException e1) {}
 				}
 			}
 			
@@ -146,32 +142,44 @@ public class MainGuiHandeler {
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+omhoog");
 						con.setKeyCommand(0);
-						con.getServer().sendScreenToClient(gui);
-						gui.getFrame().setVisible(false);
+						con.getServer();
+						if (!Server.clients.isEmpty()){
+							con.getServer().sendScreenToClient(gui);
+							gui.getFrame().setVisible(false);
+						}
 					}
 					break;
 				case KeyEvent.VK_DOWN:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+down");
 						con.setKeyCommand(0);
-						con.getServer().sendScreenToClient(gui);
-						gui.getFrame().setVisible(false);
+						con.getServer();
+						if (!Server.clients.isEmpty()){
+							con.getServer().sendScreenToClient(gui);
+							gui.getFrame().setVisible(false);
+						}
 					}
 					break;
 				case KeyEvent.VK_LEFT:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+left");	
 						con.setKeyCommand(0);
-						con.getServer().sendScreenToClient(gui);
-						gui.getFrame().setVisible(false);
+						con.getServer();
+						if (!Server.clients.isEmpty()){
+							con.getServer().sendScreenToClient(gui);
+							gui.getFrame().setVisible(false);
+						}
 					}
 					break;
 				case KeyEvent.VK_RIGHT:
 					if (con.getKeyCommand()==1){
 						System.out.println("alt+right");	
 						con.setKeyCommand(0);
-						con.getServer().sendScreenToClient(gui);
-						gui.getFrame().setVisible(false);
+						con.getServer();
+						if (!Server.clients.isEmpty()){
+							con.getServer().sendScreenToClient(gui);
+							gui.getFrame().setVisible(false);
+						}
 					}
 					break;
 				default:
@@ -188,44 +196,58 @@ public class MainGuiHandeler {
 	
 	public void addButtonHandelers() {
 		gui.getBtnVerbinden().addActionListener(new ActionListener() {
-			@SuppressWarnings("static-access")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// eerst controleren of er een geldig ip en poort is ingevuld
 				try{
 					Integer poort = Integer.parseInt(gui.getTxtPoort().getText());
 					String ip = gui.getTxtIP().getText();
-					// dit is nu alleen voor ip4 // TODO ook nog compitable maken voor ip6
 					// ***.***.***.*** <- 15 tekens
 					if (ip.length()<=15){
+						//ipv4
 						// er zitten 3 punten in
 						if (ip.replace(".", "").length()==ip.length()-3){
-							if (con.searchOrCreate(ip,poort).equals("Server Online")){
-								gui.getTxtAreaLog().append("Server is online\n");
-								gui.getFrame().setTitle("Client Side");
-								// server online
-							}
-							else{
-								gui.getTxtAreaLog().append("Kan de server niet vinden\n");
-								gui.getTxtAreaLog().append("Er is een nieuwe server aangemaakt\n");
-								gui.getFrame().setTitle("Server Side");
-								gui.setModeChoice();
-								// server offline
-							}
+							connect(ip,poort);
 							//gui.getBtnVerbinden().setEnabled(false);
 						}
 						else{
-							gui.getTxtAreaLog().append("Het IP adres is niet juist\n");	
+							MainGui.getTxtAreaLog().append("Het IP adres is niet juist\n");	
 						}
 					}
+					else if(ip.length()<=39){
+						//ipv6
+						// er zitten 7 dubble punt in in
+						if (ip.replace(":", "").length()==ip.length()-7){
+							connect(ip,poort);
+						}
+						else{
+							MainGui.getTxtAreaLog().append("Het IP adres is niet juist\n");	
+						}
+					}
+					
 					else{
-						gui.getTxtAreaLog().append("Het IP adres is te lang\n");
+						MainGui.getTxtAreaLog().append("Het IP adres is te lang\n");
 					}
 				}
 				catch(NumberFormatException ex){
-					gui.getTxtAreaLog().append("De poort is onjuist, probeer alleen cijfers in te voeren\n");
+					MainGui.getTxtAreaLog().append("De poort is onjuist, probeer alleen cijfers in te voeren\n");
 				}
 				
+			}
+			
+			private void connect(String ip, int poort){
+				if (con.searchOrCreate(ip,poort).equals("Server Online")){
+					MainGui.getTxtAreaLog().append("Server is online\n");
+					gui.getFrame().setTitle("Client Side");
+					// server online
+				}
+				else{
+					MainGui.getTxtAreaLog().append("Kan de server niet vinden\n");
+					MainGui.getTxtAreaLog().append("Er is een nieuwe server aangemaakt\n");
+					gui.getFrame().setTitle("Server Side");
+					gui.setModeChoice();
+					// server offline
+				}
 			}
 		});
 		

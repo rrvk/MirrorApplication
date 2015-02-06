@@ -13,6 +13,8 @@ public class Server implements Runnable{
 	private Integer poort;
 	private ServerSendToClients send = new ServerSendToClients();
 	
+	private int mode=0;
+	
 	public static Map<Integer, ClientInfo> clients= new HashMap<Integer, ClientInfo>();
 	public static Integer count=0;
 	
@@ -42,7 +44,7 @@ public class Server implements Runnable{
 				MainGui.getTxtAreaLog().append("Nieuwe Cliënt("+count+")\n");
 				ClientInfo clientinfo = new ClientInfo(client);
 				clients.put(count, clientinfo);
-				HandelClient hC= new HandelClient(clientinfo,count);
+				HandelClient hC= new HandelClient(clientinfo,count,mode);
 				count++;
 				//niewe thread starten voor afhandelen client
 				Thread t = new Thread(hC);
@@ -93,10 +95,14 @@ public class Server implements Runnable{
 		send.setCommando("ScreenToClient");
 		send.send("ClientX");
 	}
+	
+	public void setMode(int mode){
+		this.mode=mode;
+	}
 
 	public void sendMode(Integer mode) {
+		this.mode=mode;
 		send.setCommando("Mode");
-		send.send(mode);
-		
+		send.send(mode);		
 	}
 }
