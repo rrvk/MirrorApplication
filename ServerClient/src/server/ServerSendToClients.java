@@ -53,7 +53,7 @@ public class ServerSendToClients{
 	
 	/**
 	 * This is for sending 1 integer to the client
-	 * comatible with State,Mode
+	 * compatible with State,Mode
 	 * @param i
 	 */
 	@SuppressWarnings("unchecked")
